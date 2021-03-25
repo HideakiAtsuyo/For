@@ -12,13 +12,15 @@
  * @updateUrl https://mwittrien.github.io/BetterDiscordAddons/Plugins/BadgesEverywhere/BadgesEverywhere.plugin.js
  */
 
+
+//Lazy for clean the code..
 module.exports = (_ => {
 	const config = {
 		"info": {
 			"name": "BadgesEverywhere",
 			"author": "DevilBro",
 			"version": "1.6.6",
-			"description": "Displays Badges (Nitro, Hypesquad, etc...) in the Chat/MemberList/UserPopout"
+			"description": "Displays Early Badge"
 		}
 	};
 	
@@ -61,7 +63,6 @@ module.exports = (_ => {
 		}
 	} : (([Plugin, BDFDB]) => {
 		var badgeClasses, requestedUsers = {}, loadedUsers = {}, requestQueue = {queue: [], timeout: null, id: null}, cacheTimeout;
-		var nitroFlag, boostFlag;
 		var settings = {}, badges = {}, indicators = {};
 		
 		const miniTypes = ["list", "chat"];
@@ -81,106 +82,17 @@ module.exports = (_ => {
 						showInPopout:		{value: true, 	description: "Show Badge in User Popout"},
 						showInChat:			{value: true, 	description: "Show Badge in Chat Window"},
 						showInMemberList:	{value: true, 	description: "Show Badge in Member List"},
-						useColoredVersion:	{value: true, 	description: "Use colored version of the Badges for Chat and Members"},
-						showNitroDate:		{value: true, 	description: "Show the subscription date for Nitro/Boost Badges"}
+						useColoredVersion:	{value: true, 	description: "Use colored version of the Badges for Chat and Members"}
 					},
 					badges: {
-						"STAFF": {
-							value: true,
-							id: "Staff",
-								"name": "STAFF_BADGE_TOOLTIP",
-							icon: "profileBadgeStaff",
-							size: 17
-						},
-						"PARTNER": {
-							value: true,
-							id: "Partner",
-								"name": "PARTNER_BADGE_TOOLTIP",
-							icon: "profileBadgePartner",
-							size: 22
-						},
-						"HYPESQUAD": {
-							value: true,
-							id: "HypeSquad",
-								"name": "HYPESQUAD_BADGE_TOOLTIP",
-							icon: "profileBadgeHypesquad",
-							size: 17
-						},
-						"BUG_HUNTER_LEVEL_1": {
-							value: true,
-							id: "BugHunter1",
-								"name": "BUG_HUNTER_BADGE_TOOLTIP",
-							icon: "profileBadgeBugHunterLevel1",
-							size: 17,
-							suffix: "Level 1"
-						},
-						"BUG_HUNTER_LEVEL_2": {
-							value: true,
-							id: "BugHunter2",
-								"name": "BUG_HUNTER_BADGE_TOOLTIP",
-							icon: "profileBadgeBugHunterLevel2",
-							size: 17,
-							suffix: "Level 2"
-						},
-						"VERIFIED_DEVELOPER": {
-							value: true,
-							id: "VerifiedDeveloper",
-								"name": "VERIFIED_DEVELOPER_BADGE_TOOLTIP",
-							icon: "profileBadgeVerifiedDeveloper",
-							size: 17
-						},
-						"HYPESQUAD_ONLINE_HOUSE_1": {
-							value: true,
-							id: "HypeSquad1",
-								"name": "HypeSquad Bravery",
-							icon: "profileBadgeHypeSquadOnlineHouse1",
-							size: 17
-						},
-						"HYPESQUAD_ONLINE_HOUSE_2": {
-							value: true,
-							id: "HypeSquad2",
-								"name": "HypeSquad Brilliance",
-							icon: "profileBadgeHypeSquadOnlineHouse2",
-							size: 17
-						},
-						"HYPESQUAD_ONLINE_HOUSE_3": {
-							value: true,
-							id: "HypeSquad3",
-								"name": "HypeSquad Balance",
-							icon: "profileBadgeHypeSquadOnlineHouse3",
-							size: 17
-						},
 						"PREMIUM_EARLY_SUPPORTER": {
 							value: true,
 							id: "EarlySupporter",
 								"name": "EARLY_SUPPORTER_TOOLTIP",
 							icon: "profileBadgeEarlySupporter",
 							size: 24
-						},
-						"NITRO": {
-							value: true,
-							id: "Nitro",
-								"name": "Nitro",
-							icon: "profileBadgePremium",
-							size: 21
-						},
-						"GUILD_BOOST": {
-							value: true,
-							id: "NitroGuildBoost",
-								"name": "Nitro Guild Boost",
-							icon: "profileGuildSubscriberlvl",
-							size: 17,
-							types: [1,2,3,4,5,6,7,8,9]
 						}
 					},
-					indicators: {
-						"CURRENT_GUILD_BOOST": {
-							value: true,
-							id: "CurrentGuildBoost",
-								"name": "Current Nitro Guild Boost",
-							inner: `<svg name="PremiumGuildSubscriberBadge" class="${BDFDB.disCNS.memberpremiumicon + BDFDB.disCN.membericon}" aria-hidden="false" width="24" height="24" viewBox="0 0 8 12"><path d="M4 0L0 4V8L4 12L8 8V4L4 0ZM7 7.59L4 10.59L1 7.59V4.41L4 1.41L7 4.41V7.59Z" fill="currentColor"></path><path d="M2 4.83V7.17L4 9.17L6 7.17V4.83L4 2.83L2 4.83Z" fill="currentColor"></path></svg>`
-						},
-					}
 				};
 				
 				this.css = `
@@ -286,12 +198,6 @@ module.exports = (_ => {
 					this.defaults.badges[BDFDB.DiscordConstants.UserFlags[flagName]] = this.defaults.badges[flagName];
 					delete this.defaults.badges[flagName];
 				}
-				nitroFlag = Math.max(...BDFDB.ObjectUtils.toArray(BDFDB.DiscordConstants.UserFlags)) * 2;
-				this.defaults.badges[nitroFlag] = this.defaults.badges.NITRO;
-				delete this.defaults.badges.NITRO;
-				boostFlag = nitroFlag * 2;
-				this.defaults.badges[boostFlag] = this.defaults.badges.GUILD_BOOST;
-				delete this.defaults.badges.GUILD_BOOST;
 				for (let flag in this.defaults.badges) if (!this.defaults.badges[flag].icon || isNaN(parseInt(flag))) delete this.defaults.badges[flag];
 			}
 			
@@ -314,9 +220,7 @@ module.exports = (_ => {
 				BDFDB.PatchUtils.patch(this, BDFDB.LibraryModules.DispatchApiUtils, "dispatch", {after: e => {
 					if (BDFDB.ObjectUtils.is(e.methodArguments[0]) && e.methodArguments[0].type == BDFDB.DiscordConstants.ActionTypes.USER_PROFILE_MODAL_FETCH_SUCCESS && e.methodArguments[0].user) {
 						let userCopy = Object.assign({}, e.methodArguments[0].user);
-						if (e.methodArguments[0].premium_since) userCopy.flags += nitroFlag;
 						userCopy.premium_since = e.methodArguments[0].premium_since;
-						if (e.methodArguments[0].premium_guild_since) userCopy.flags += boostFlag;
 						userCopy.premium_guild_since = e.methodArguments[0].premium_guild_since;
 						loadedUsers[e.methodArguments[0].user.id] = BDFDB.ObjectUtils.extract(userCopy, "flags", "premium_since", "premium_guild_since");
 						loadedUsers[e.methodArguments[0].user.id].date = (new Date()).getTime();
@@ -449,11 +353,7 @@ module.exports = (_ => {
 			createBadges (user, type, uncolored) {
 				let renderedBadges = [];
 				for (let flag in badges) if ((loadedUsers[user.id].flags | flag) == loadedUsers[user.id].flags && badges[flag]) {
-					renderedBadges.push(this.createBadge(settings.showNitroDate ? this.getTimeString(user.id, flag) : null, type, flag, flag == boostFlag ? BDFDB.LibraryModules.GuildBoostUtils.getUserLevel(loadedUsers[user.id].premium_guild_since) : null));
-				}
-				let member = BDFDB.LibraryModules.MemberStore.getMember(BDFDB.LibraryModules.LastGuildStore.getGuildId(), user.id);
-				if (indicators.CURRENT_GUILD_BOOST && member && member.premiumSince) {
-					renderedBadges.push(this.createBadge(settings.showNitroDate ? this.getTimeString(user.id, "CURRENT_GUILD_BOOST") : null, type, "CURRENT_GUILD_BOOST"));
+					renderedBadges.push(this.createBadge(settings.showNitroDate ? this.getTimeString(user.id, flag) : null, type, flag));
 				}
 				if (!renderedBadges.length) return null;
 				else return this.createWrapper(renderedBadges, type, uncolored == undefined ? !settings.useColoredVersion : uncolored);
@@ -477,10 +377,6 @@ module.exports = (_ => {
 			}
 			
 			getTimeString (id, flag) {
-				let member = BDFDB.LibraryModules.MemberStore.getMember(BDFDB.LibraryModules.LastGuildStore.getGuildId(), id);
-				if (flag == nitroFlag) return BDFDB.LanguageUtils.LanguageStringsFormat("PREMIUM_BADGE_TOOLTIP", new Date(loadedUsers[id].premium_since));
-				else if (flag == boostFlag) return BDFDB.LanguageUtils.LanguageStringsFormat("PREMIUM_GUILD_SUBSCRIPTION_TOOLTIP", new Date(loadedUsers[id].premium_guild_since));
-				else if (member && flag == "CURRENT_GUILD_BOOST") return BDFDB.LanguageUtils.LanguageStringsFormat("PREMIUM_GUILD_SUBSCRIPTION_TOOLTIP", new Date(member.premiumSince));
 				return null;
 			}
 			
